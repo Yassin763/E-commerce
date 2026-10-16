@@ -1,0 +1,61 @@
+import { useEffect, useState } from "react";
+import Heroslider from "../../component/Heroslider";
+import SlideProduct from "../../component/slideProducts/SlideProduct";
+import './home.css'
+function Home() {
+    const categories = [
+        "smartphones",
+        "laptops",
+        "mobile-accessories",
+        "tablets",
+        "mens-watches"
+    ]
+    const [products, setProducts] = useState({})
+    const [loading , Setloading] = useState(true)
+    useEffect(() => {
+        const fetchData = async () => {
+        try{
+           const results = await Promise.all(
+             categories.map(async (category) => {
+               const res =  await fetch(`https://dummyjson.com/products/category/${category}`)
+               const data = await res.json()
+               return {[category] : data.products}
+                    
+        })
+         
+           )
+           
+           
+           const ProductData = Object.assign({},...results);
+           setProducts(ProductData)
+        }catch(error){
+            console.error('error fetching!!' , error)
+        }finally{
+            Setloading(false)
+        }
+        }
+        fetchData()
+
+     } , [])
+     
+return (
+    <>
+        <div>
+            <Heroslider />
+            {
+                loading ? 
+                (<p>loading....</p>)
+                :
+                (
+                    categories.map((category) => (
+                    <SlideProduct key={category} data={products[category]} title={category.replace("-" , " ")} />
+                ))
+                )
+            }
+            
+        </div>
+    </>
+);
+}
+
+export default Home;
